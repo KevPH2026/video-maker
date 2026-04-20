@@ -36,6 +36,8 @@ Generate a professional video composition for: ${description}
 Make the content specific to this product/service. Include real text, numbers, and details.
 Colors: dark background with warm amber/gold accent.`;
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 25000);
     const response = await fetch(`${SF_BASE}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -46,9 +48,11 @@ Colors: dark background with warm amber/gold accent.`;
         model: 'deepseek-ai/DeepSeek-V3',
         messages: [{ role: 'user', content: prompt }],
         stream: false,
-        max_tokens: 3500,
+        max_tokens: 2500,
       }),
+      signal: controller.signal as any,
     });
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const err = await response.text();

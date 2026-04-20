@@ -294,6 +294,23 @@ window.__timelines["comp"]=tl;
     });
   };
 
+  // Read URL params on mount to pre-fill from example links
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const name = params.get('name');
+    const tagline = params.get('tagline');
+    if (name || tagline) {
+      setFormData(prev => ({
+        ...prev,
+        name: name || prev.name,
+        tagline: tagline || prev.tagline,
+        description: tagline || prev.description,
+        features: tagline || prev.features,
+      }));
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-950 text-white flex flex-col">
       <Head><title>VideoAI · 生成视频</title></Head>

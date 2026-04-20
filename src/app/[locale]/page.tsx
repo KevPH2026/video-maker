@@ -306,6 +306,26 @@ Colors: dark background with warm amber/gold accent.`;
               </a>
             </div>
           )}
+
+          {/* Example outputs - click to pre-fill */}
+          {!showPreview && !isGenerating && (
+            <div style={{ marginTop: 56 }}>
+              <p style={{ textAlign: 'center', color: '#666', fontSize: 13, marginBottom: 24 }}>{isEN ? 'Or try these examples →' : '试试这些示例产品 →'}</p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                {[
+                  { name: isEN ? 'Smart Watch Pro X' : '智能手表 Pro X', desc: isEN ? 'Fitness tracker for athletes, $399' : '运动GPS心率表，¥2999', color: '#ff6b35', bg: '#1a0a00' },
+                  { name: isEN ? 'Portable Power Station' : '便携储能电源', desc: isEN ? '1000Wh solar generator, $599' : '1000Wh太阳能储能，¥4599', color: '#00d4aa', bg: '#001a10' },
+                  { name: isEN ? 'Air Purifier Mini' : '空气净化器 Mini', desc: isEN ? 'HEPA filter for small rooms, $129' : 'HEPA静音净化，¥999', color: '#bf5af2', bg: '#0d001a' },
+                ].map((ex, i) => (
+                  <a key={i} href={`/generate?name=${encodeURIComponent(ex.name)}&tagline=${encodeURIComponent(ex.desc)}`}
+                    style={{ display: 'block', padding: '20px 24px', borderRadius: 16, background: ex.bg, border: `1px solid ${ex.color}33`, textDecoration: 'none' }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 6 }}>{ex.name}</div>
+                    <div style={{ fontSize: 12, color: ex.color }}>{ex.desc}</div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </section>
 

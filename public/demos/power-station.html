@@ -1,0 +1,119 @@
+Here's the complete HTML file:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { margin: 0; background: #0a0a14; overflow: hidden; }
+        #comp { width: 1920px; height: 1080px; position: relative; }
+        
+        .scene { position: absolute; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; color: white; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        
+        .hero-box { text-align: center; }
+        h1 { font-size: 72px; font-weight: 600; margin: 0; line-height: 1.2; }
+        .hero-sub { font-size: 36px; color: #f59e0b; margin-top: 16px; }
+        
+        .features { display: flex; gap: 60px; opacity: 0; }
+        .feature { text-align: center; width: 300px; }
+        .feature-icon { font-size: 48px; color: #f59e0b; margin-bottom: 20px; }
+        .feature-title { font-size: 28px; font-weight: 500; margin-bottom: 12px; }
+        .feature-desc { font-size: 20px; opacity: 0.8; }
+        
+        .stats { display: flex; gap: 80px; opacity: 0; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 64px; font-weight: 600; color: #f59e0b; }
+        .stat-label { font-size: 28px; margin-top: 8px; }
+        
+        .cta-box { text-align: center; opacity: 0; }
+        .price { font-size: 60px; font-weight: 600; color: #f59e0b; margin: 20px 0; }
+        .cta-btn { background: #f59e0b; color: black; border: none; padding: 16px 48px; font-size: 28px; font-weight: 600; border-radius: 50px; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div id="comp" data-composition-id="video" data-width="1920" data-height="1080" data-start="0" data-duration="22">
+        <div class="scene" id="hero">
+            <div class="hero-box">
+                <h1>便携储能电源</h1>
+                <div class="hero-sub">1000Wh太阳能发电机</div>
+            </div>
+        </div>
+        
+        <div class="scene" id="features">
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">🔋</div>
+                    <div class="feature-title">大容量</div>
+                    <div class="feature-desc">1000Wh超大容量</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">☀️</div>
+                    <div class="feature-title">太阳能充电</div>
+                    <div class="feature-desc">支持太阳能板充电</div>
+                </div>
+                <div class="feature">
+                    <div class="feature-icon">🏕️</div>
+                    <div class="feature-title">便携设计</div>
+                    <div class="feature-desc">专为露营设计</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scene" id="stats">
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">1000Wh</div>
+                    <div class="stat-label">超大容量</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">10+</div>
+                    <div class="stat-label">设备充电</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">6h</div>
+                    <div class="stat-label">太阳能充满</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="scene" id="cta">
+            <div class="cta-box">
+                <div>限时优惠价</div>
+                <div class="price">$599</div>
+                <div>适合露营、户外活动和紧急用电</div>
+                <button class="cta-btn">立即购买</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.__timelines = {};
+        const tl = gsap.timeline({ paused: true });
+        window.__timelines["video"] = tl;
+        
+        // Hero scene
+        tl.to("#hero h1", { duration: 1, delay: 0.5, opacity: 1, y: 0 });
+        tl.to("#hero .hero-sub", { duration: 1, opacity: 1, y: 0 }, "-=0.8");
+        
+        // Features scene
+        tl.to("#hero", { duration: 1, opacity: 0 }, "+=1");
+        tl.to("#features", { duration: 0.5, opacity: 1 });
+        tl.from(".features .feature:nth-child(1)", { duration: 0.8, x: -200, opacity: 0 }, "-=0.3");
+        tl.from(".features .feature:nth-child(2)", { duration: 0.8, y: 100, opacity: 0 }, "-=0.6");
+        tl.from(".features .feature:nth-child(3)", { duration: 0.8, x: 200, opacity: 0 }, "-=0.6");
+        
+        // Stats scene
+        tl.to("#features", { duration: 1, opacity: 0 }, "+=1");
+        tl.to("#stats", { duration: 0.5, opacity: 1 });
+        tl.from(".stats .stat:nth-child(1)", { duration: 0.8, y: 100, opacity: 0 }, "-=0.3");
+        tl.from(".stats .stat:nth-child(2)", { duration: 0.8, scale: 0.5, opacity: 0 }, "-=0.6");
+        tl.from(".stats .stat:nth-child(3)", { duration: 0.8, y: 100, opacity: 0 }, "-=0.6");
+        
+        // CTA scene
+        tl.to("#stats", { duration: 1, opacity: 0 }, "+=1");
+        tl.to("#cta", { duration: 0.5, opacity: 1 });
+        tl.from(".cta-box > div", { duration: 0.6, y: 50, opacity: 0, stagger: 0.2 }, "-=0.3");
+        tl.from(".cta-btn", { duration: 0.8, scale: 0.8, opacity: 0 }, "-=0.3");
+    </script>
+</body>
+</html>

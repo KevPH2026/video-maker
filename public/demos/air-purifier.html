@@ -1,0 +1,179 @@
+Here's the complete HTML file for your HyperFrames HTML video composition:
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #0a0a14;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: white;
+        }
+        #comp {
+            width: 1920px;
+            height: 1080px;
+            position: relative;
+        }
+        .scene {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+        }
+        h1 {
+            font-size: 96px;
+            margin: 0;
+            font-weight: 700;
+        }
+        h2 {
+            font-size: 64px;
+            margin: 0 0 20px 0;
+            font-weight: 600;
+        }
+        p {
+            font-size: 36px;
+            margin: 10px 0;
+        }
+        .price {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .feature-list {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .feature-item {
+            margin: 15px 0;
+            font-size: 42px;
+        }
+        .stat-container {
+            display: flex;
+            gap: 80px;
+            margin-top: 60px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 72px;
+            color: #f59e0b;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 32px;
+        }
+        .cta-button {
+            background-color: #f59e0b;
+            color: #0a0a14;
+            padding: 20px 60px;
+            border-radius: 50px;
+            font-size: 42px;
+            font-weight: bold;
+            margin-top: 60px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="comp" data-composition-id="video" data-width="1920" data-height="1080" data-start="0" data-duration="22">
+        <!-- Hero Scene -->
+        <div class="scene" id="hero">
+            <h1>空气净化器 Mini</h1>
+            <p class="price">仅售 $129</p>
+            <p>小户型完美伴侣</p>
+        </div>
+
+        <!-- Features Scene -->
+        <div class="scene" id="features">
+            <h2>卓越特色</h2>
+            <div class="feature-list">
+                <div class="feature-item">HEPA 高效过滤系统</div>
+                <div class="feature-item">超静音运行（25dB）</div>
+                <div class="feature-item">适用面积20-40㎡</div>
+                <div class="feature-item">智能空气质量监测</div>
+            </div>
+        </div>
+
+        <!-- Stats Scene -->
+        <div class="scene" id="stats">
+            <h2>卓越性能</h2>
+            <div class="stat-container">
+                <div class="stat">
+                    <div class="stat-value">99.97%</div>
+                    <div class="stat-label">微粒过滤</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">25dB</div>
+                    <div class="stat-label">静音运行</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">3档</div>
+                    <div class="stat-label">风速调节</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA Scene -->
+        <div class="scene" id="cta">
+            <h2>立即升级您的空气质量</h2>
+            <p>限时优惠 $129</p>
+            <div class="cta-button">立即购买 →</div>
+        </div>
+    </div>
+
+    <script>
+        window.__timelines = {};
+        document.addEventListener('DOMContentLoaded', function() {
+            const tl = gsap.timeline({paused: true});
+            window.__timelines["video"] = tl;
+
+            // Hero scene animation (0-5 seconds)
+            tl.from("#hero", { opacity: 0, duration: 1 })
+              .from("#hero h1", { y: 100, opacity: 0, duration: 1 }, 0.5)
+              .from("#hero .price", { y: 80, opacity: 0, duration: 0.8 }, 1)
+              .from("#hero p:last-child", { y: 80, opacity: 0, duration: 0.8 }, 1.5)
+              .to("#hero", { opacity: 0, duration: 1 }, 4);
+
+            // Features scene animation (5-11 seconds)
+            tl.from("#features", { opacity: 0, duration: 1 }, 5)
+              .from("#features h2", { y: 100, opacity: 0, duration: 1 }, 5.5)
+              .from("#features .feature-item", { 
+                  y: 80, 
+                  opacity: 0, 
+                  duration: 0.8, 
+                  stagger: 0.3 
+              }, 6)
+              .to("#features", { opacity: 0, duration: 1 }, 10);
+
+            // Stats scene animation (11-16 seconds)
+            tl.from("#stats", { opacity: 0, duration: 1 }, 11)
+              .from("#stats h2", { y: 100, opacity: 0, duration: 1 }, 11.5)
+              .from("#stats .stat", { 
+                  y: 100, 
+                  opacity: 0, 
+                  duration: 0.8, 
+                  stagger: 0.3 
+              }, 12)
+              .to("#stats", { opacity: 0, duration: 1 }, 15);
+
+            // CTA scene animation (16-22 seconds)
+            tl.from("#cta", { opacity: 0, duration: 1 }, 16)
+              .from("#cta h2", { y: 100, opacity: 0, duration: 1 }, 16.5)
+              .from("#cta p", { y: 80, opacity: 0, duration: 0.8 }, 17)
+              .from("#cta .cta-button", { 
+                  y: 80, 
+                  opacity: 0, 
+                  duration: 0.8,
+                  scale: 0.8
+              }, 17.5);
+        });
+    </script>
+</body>
+</html>

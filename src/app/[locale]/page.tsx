@@ -310,18 +310,28 @@ Colors: dark background with warm amber/gold accent.`;
           {/* Example outputs - click to pre-fill */}
           {!showPreview && !isGenerating && (
             <div style={{ marginTop: 56 }}>
-              <p style={{ textAlign: 'center', color: '#666', fontSize: 13, marginBottom: 24 }}>{isEN ? 'Or try these examples →' : '试试这些示例产品 →'}</p>
+              <p style={{ textAlign: 'center', color: '#666', fontSize: 13, marginBottom: 24 }}>{isEN ? 'Click any example to see the AI-generated video →' : '点击示例查看 AI 生成的视频效果 →'}</p>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
                 {[
-                  { name: isEN ? 'Smart Watch Pro X' : '智能手表 Pro X', desc: isEN ? 'Fitness tracker for athletes, $399' : '运动GPS心率表，¥2999', color: '#ff6b35', bg: '#1a0a00' },
-                  { name: isEN ? 'Portable Power Station' : '便携储能电源', desc: isEN ? '1000Wh solar generator, $599' : '1000Wh太阳能储能，¥4599', color: '#00d4aa', bg: '#001a10' },
-                  { name: isEN ? 'Air Purifier Mini' : '空气净化器 Mini', desc: isEN ? 'HEPA filter for small rooms, $129' : 'HEPA静音净化，¥999', color: '#bf5af2', bg: '#0d001a' },
+                  { name: '智能手表 Pro X', slug: 'smart-watch', color: '#ff6b35' },
+                  { name: '便携储能电源', slug: 'power-station', color: '#00d4aa' },
+                  { name: '空气净化器 Mini', slug: 'air-purifier', color: '#bf5af2' },
                 ].map((ex, i) => (
-                  <a key={i} href={`/generate?name=${encodeURIComponent(ex.name)}&tagline=${encodeURIComponent(ex.desc)}`}
-                    style={{ display: 'block', padding: '20px 24px', borderRadius: 16, background: ex.bg, border: `1px solid ${ex.color}33`, textDecoration: 'none' }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 6 }}>{ex.name}</div>
-                    <div style={{ fontSize: 12, color: ex.color }}>{ex.desc}</div>
-                  </a>
+                  <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: `1px solid ${ex.color}33`, background: '#0a0a14' }}>
+                    <div style={{ height: 120, overflow: 'hidden', background: '#000', position: 'relative' }}>
+                      <iframe src={`/demos/${ex.slug}.html`} key={ex.slug}
+                        style={{ width: '192%', height: '200%', border: 'none', transform: 'scale(0.5)', transformOrigin: 'top left', pointerEvents: 'none' }}
+                        sandbox="allow-scripts"
+                        title={ex.name} />
+                    </div>
+                    <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{ex.name}</span>
+                      <a href={`/generate?name=${encodeURIComponent(ex.name)}&tagline=`}
+                        style={{ fontSize: 12, color: ex.color, textDecoration: 'none', fontWeight: 600 }}>
+                        制作 →
+                      </a>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

@@ -1,6 +1,6 @@
 {
   "name": "video-maker",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@hyperframes/producer": "^0.4.4",
     "next": "16.2.4",
+    "puppeteer-core": "^24.41.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

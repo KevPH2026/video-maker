@@ -11,7 +11,7 @@ const CN = {
   how: { badge: '简单流程', title1: '三步完成', title2: '零门槛', steps: [{ n: '01', t: '粘贴URL', d: '输入任意网页链接 — 产品页、文章、落地页均可。' }, { n: '02', t: 'AI分析', d: 'HyperFrames引擎自动提取关键内容、场景和视觉层级。' }, { n: '03', t: '视频就绪', d: '下载精美HD视频，带电影级转场效果，可分享到任意平台。' }] },
   features: { badge: 'HyperFrames引擎', title1: '极速', title2: '高质量', items: [{ i: '⚡', t: '30秒导出', d: '从URL到HD视频仅需30秒。无需等待。' }, { i: '🎬', t: 'AI场景分析', d: '自动识别关键内容、数据和视觉层级。' }, { i: '📐', t: '多格式', d: '支持16:9、9:16、1:1、4:5任意比例。' }, { i: '🖥️', t: 'HTML5播放器', d: '内置视频播放器，支持自定义品牌。' }, { i: '🔧', t: '无需代码', d: '粘贴URL，点击生成，零技术门槛。' }, { i: '💎', t: 'HD质量', d: '1080p全高清导出，电影级转场。' }] },
   demo: { badge: '实时演示', title1: '立即体验', title2: '', input: 'INPUT', output: 'OUTPUT', empty: '在上方输入URL...', generating: '视频将在这里显示...', placeholder: '填写左侧信息并点击生成', cta: '去制作完整视频 →' },
-  pricing: { badge: '简单定价', title: { f: '免费', w: '自定义', p: '付费' }, subtitle: '免费版每天每IP生成3个视频。付费版 — 设定你自己的价格。', free: { name: '免费版', price: '$0', desc: '零成本试用，体验完整功能', features: ['每天3个视频/IP', '720p分辨率', '基础模板', '社区支持'], cta: '免费开始' }, ess: { tag: '最灵活', name: '付费基础版', old: '$29', features: ['无限视频', '1080p HD导出', '全部模板', '自定义品牌', '优先支持'], cta: '提交价格' }, pro: { tag: '最强大', name: '付费专业版', old: '$99', features: ['基础版全部功能', '4K超高清导出', '团队协作', 'API接口', '专属支持', '定制模板'], cta: '提交价格' } },
+  pricing: { badge: '简单定价', title: { f: '免费', w: '自定义', p: '付费' }, subtitle: '免费版每天每IP生成3个视频。付费版 — 填你想要的数量和你能接受的价格。', free: { name: '免费版', price: '$0', desc: '零成本试用，体验完整功能', features: ['每天3个视频/IP', '720p分辨率', '基础模板', '社区支持'], cta: '免费开始' }, ess: { tag: '最灵活', name: '付费基础版', old: '$29', features: ['自定义视频数量', '1080p HD导出', '全部模板', '自定义品牌', '优先支持'], cta: '提交报价' }, pro: { tag: '最强大', name: '付费专业版', old: '$99', features: ['更多视频数量', '4K超高清导出', '团队协作', 'API接口', '专属支持', '定制模板'], cta: '提交报价' } },
   footer: { cta1: '准备', cta2: '引爆传播？', cta3: '加入成千上万的创作者，把网页变成病毒视频。无需信用卡。', btn: '免费开始创作 →' },
 };
 
@@ -21,7 +21,7 @@ const EN = {
   how: { badge: 'Simple Process', title1: 'THREE STEPS.', title2: 'Zero Complexity.', steps: [{ n: '01', t: 'Paste URL', d: 'Enter any webpage URL — product page, article, landing page — anything.' }, { n: '02', t: 'AI Analyzes', d: 'Our HyperFrames engine extracts key content, scenes, and visual hierarchy.' }, { n: '03', t: 'Video Ready', d: 'Download stunning HD video with cinematic transitions. Share anywhere.' }] },
   features: { badge: 'HyperFrames Engine', title1: 'Built for', title2: 'Speed & Quality', items: [{ i: '⚡', t: '30-Second Export', d: 'From URL to HD video in under 30 seconds. No waiting, no queue.' }, { i: '🎬', t: 'AI Scene Analysis', d: 'Automatically identifies key content, stats, and visual hierarchy.' }, { i: '📐', t: 'Multi-Format', d: 'Export in 16:9, 9:16, 1:1, and 4:5. Perfect for any platform.' }, { i: '🖥️', t: 'HTML5 Player', d: 'Built-in video player with custom branding. Embed anywhere.' }, { i: '🔧', t: 'No Code Required', d: 'Paste URL, click generate. No technical skills needed.' }, { i: '💎', t: 'HD Quality', d: 'Crystal clear 1080p exports with cinematic transitions.' }] },
   demo: { badge: 'Live Preview', title1: 'TRY IT', title2: 'Right Now', input: 'INPUT', output: 'OUTPUT', empty: 'Enter a URL above...', generating: 'Generating...', placeholder: 'Fill in the left side and click generate', cta: 'Go to Full Video Maker →' },
-  pricing: { badge: 'Simple Pricing', title: { f: 'Free', w: 'Pay What You Want', p: 'Pro' }, subtitle: 'Free tier: 3 videos/day/IP. Paid versions — set your own price.', free: { name: 'Free', price: '$0', desc: 'Try it out. No commitment.', features: ['3 videos / day / IP', '720p resolution', 'Basic templates', 'Community support'], cta: 'Get Started Free' }, ess: { tag: 'MOST FLEXIBLE', name: 'Paid Essentials', old: '$29', features: ['Unlimited videos', '1080p HD export', 'All templates', 'Custom branding', 'Priority support'], cta: 'Submit Your Price' }, pro: { tag: 'MOST POWERFUL', name: 'Paid Pro', old: '$99', features: ['Everything in Essentials', '4K export', 'Team collaboration', 'API access', 'Dedicated support', 'Custom templates'], cta: 'Submit Your Price' } },
+  pricing: { badge: 'Simple Pricing', title: { f: 'Free', w: 'Set Your Own', p: 'Pro' }, subtitle: 'Free tier: 3 videos/day/IP. Paid — tell us how many you need and what you\'d pay.', free: { name: 'Free', price: '$0', desc: 'Try it out. No commitment.', features: ['3 videos / day / IP', '720p resolution', 'Basic templates', 'Community support'], cta: 'Get Started Free' }, ess: { tag: 'MOST FLEXIBLE', name: 'Paid Essentials', old: '$29', features: ['Custom video quantity', '1080p HD export', 'All templates', 'Custom branding', 'Priority support'], cta: 'Submit Quote' }, pro: { tag: 'MOST POWERFUL', name: 'Paid Pro', old: '$99', features: ['Higher volume', '4K export', 'Team collaboration', 'API access', 'Dedicated support', 'Custom templates'], cta: 'Submit Quote' } },
   footer: { cta1: 'Ready to', cta2: 'Go Viral?', cta3: 'Join thousands of creators turning webpages into viral videos. No credit card required.', btn: 'Start Creating Free →' },
 };
 
@@ -308,14 +308,24 @@ export default function LocalePage({ params }: { params: Promise<{ locale: strin
                   </li>
                 ))}
               </ul>
-              <input type="number" placeholder={isEN ? 'Enter your price' : '输入你接受的价格'} className="pay-input" min="1" id="pay-ess" style={{ borderColor: 'rgba(255,0,128,0.3)' }} />
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 12, color: '#888', marginBottom: 6, fontWeight: 600 }}>{isEN ? 'Number of videos you want' : '想要多少个视频'}</div>
+                <input type="number" placeholder={isEN ? 'e.g. 100' : '例如：100'} className="pay-input" min="1" id="qty-ess" style={{ borderColor: 'rgba(255,0,128,0.3)' }} />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 12, color: '#888', marginBottom: 6, fontWeight: 600 }}>{isEN ? 'Price you accept (¥)' : '你能接受的价格（元）'}</div>
+                <input type="number" placeholder={isEN ? 'e.g. 299' : '例如：299'} className="pay-input" min="1" id="pay-ess" style={{ borderColor: 'rgba(255,0,128,0.3)' }} />
+              </div>
               <button className="submit-price-btn" style={{ background: 'linear-gradient(135deg, #ff0080, #00ffff)' }}
                 onClick={() => {
-                  const inp = document.getElementById('pay-ess') as HTMLInputElement;
-                  const price = inp?.value;
-                  if (!price || Number(price) <= 0) { alert(isEN ? 'Please enter a valid price' : '请输入有效价格'); return; }
-                  fetch('/api/price-submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'essentials', price: Number(price) }) })
-                    .then(r => r.json()).then(d => { if (d.ok) alert(isEN ? `Thanks! Your price of ¥${price} has been recorded.` : `谢谢！你的价格 ¥${price} 已记录。`); else alert(d.error || (isEN ? 'Submit failed' : '提交失败')); })
+                  const qtyEl = document.getElementById('qty-ess') as HTMLInputElement;
+                  const priceEl = document.getElementById('pay-ess') as HTMLInputElement;
+                  const qty = qtyEl?.value;
+                  const price = priceEl?.value;
+                  if (!qty || Number(qty) <= 0) { alert(isEN ? 'Please enter number of videos' : '请输入视频数量'); return; }
+                  if (!price || Number(price) <= 0) { alert(isEN ? 'Please enter your price' : '请输入你能接受的价格'); return; }
+                  fetch('/api/price-submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'essentials', qty: Number(qty), price: Number(price) }) })
+                    .then(r => r.json()).then(d => { if (d.ok) alert(isEN ? `Thanks! ${qty} videos at ¥${price} — we recorded it!` : `谢谢！${qty}个视频，¥${price}，已记录！`); else alert(d.error || (isEN ? 'Submit failed' : '提交失败')); })
                     .catch(() => alert(isEN ? 'Submit failed' : '提交失败'));
                 }}>
                 {t.pricing.ess.cta}
@@ -337,14 +347,24 @@ export default function LocalePage({ params }: { params: Promise<{ locale: strin
                   </li>
                 ))}
               </ul>
-              <input type="number" placeholder={isEN ? 'Enter your price' : '输入你接受的价格'} className="pay-input" min="1" id="pay-pro" />
+              <div style={{ marginBottom: 8 }}>
+                <div style={{ fontSize: 12, color: '#888', marginBottom: 6, fontWeight: 600 }}>{isEN ? 'Number of videos you want' : '想要多少个视频'}</div>
+                <input type="number" placeholder={isEN ? 'e.g. 500' : '例如：500'} className="pay-input" min="1" id="qty-pro" />
+              </div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 12, color: '#888', marginBottom: 6, fontWeight: 600 }}>{isEN ? 'Price you accept (¥)' : '你能接受的价格（元）'}</div>
+                <input type="number" placeholder={isEN ? 'e.g. 999' : '例如：999'} className="pay-input" min="1" id="pay-pro" />
+              </div>
               <button className="submit-price-btn"
                 onClick={() => {
-                  const inp = document.getElementById('pay-pro') as HTMLInputElement;
-                  const price = inp?.value;
-                  if (!price || Number(price) <= 0) { alert(isEN ? 'Please enter a valid price' : '请输入有效价格'); return; }
-                  fetch('/api/price-submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'pro', price: Number(price) }) })
-                    .then(r => r.json()).then(d => { if (d.ok) alert(isEN ? `Thanks! Your price of ¥${price} has been recorded.` : `谢谢！你的价格 ¥${price} 已记录。`); else alert(d.error || (isEN ? 'Submit failed' : '提交失败')); })
+                  const qtyEl = document.getElementById('qty-pro') as HTMLInputElement;
+                  const priceEl = document.getElementById('pay-pro') as HTMLInputElement;
+                  const qty = qtyEl?.value;
+                  const price = priceEl?.value;
+                  if (!qty || Number(qty) <= 0) { alert(isEN ? 'Please enter number of videos' : '请输入视频数量'); return; }
+                  if (!price || Number(price) <= 0) { alert(isEN ? 'Please enter your price' : '请输入你能接受的价格'); return; }
+                  fetch('/api/price-submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan: 'pro', qty: Number(qty), price: Number(price) }) })
+                    .then(r => r.json()).then(d => { if (d.ok) alert(isEN ? `Thanks! ${qty} videos at ¥${price} — we recorded it!` : `谢谢！${qty}个视频，¥${price}，已记录！`); else alert(d.error || (isEN ? 'Submit failed' : '提交失败')); })
                     .catch(() => alert(isEN ? 'Submit failed' : '提交失败'));
                 }}>
                 {t.pricing.pro.cta}

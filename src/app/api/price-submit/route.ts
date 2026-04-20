@@ -5,15 +5,20 @@ const DATA_FILE = '/tmp/price-submissions.jsonl';
 
 export async function POST(req: NextRequest) {
   try {
-    const { plan, price } = await req.json();
+    const { plan, qty, price } = await req.json();
 
     if (!plan || !price || typeof price !== 'number' || price <= 0) {
       return NextResponse.json({ error: 'Invalid plan or price' }, { status: 400 });
     }
+    if (!qty || typeof qty !== 'number' || qty <= 0) {
+      return NextResponse.json({ error: 'Invalid quantity' }, { status: 400 });
+    }
 
     const entry = {
       plan,
+      qty,
       price,
+      per_video: qty > 0 ? (price / qty).toFixed(2) : null,
       timestamp: new Date().toISOString(),
       ip: req.headers.get('x-forwarded-for') || 'unknown',
     };

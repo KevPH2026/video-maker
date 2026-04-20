@@ -176,15 +176,15 @@ window.__timelines["comp"]=tl;
     setShowPreview(false);
 
     try {
-      const key = 'sk-cp-iPwiazmWpnPdhqDDL7MERYcIObW3prHB-wcTTRiTrcSbSzzQ2Iva4YZ5Tv0I3LsOnKAAIGAE2H9CbgMxPRJiOJ-PULd1bZOh8_QSWnmR-HWvxAwS6BFxxpc';
+      const key = 'sk-bzuzrniblkmsprdphgfhigqqokinomxcsfnwpexejboplbld';
       const prompt = mode === 'form' ? buildStructuredPrompt(formData) : `你是一个视频营销策划师。根据产品描述生成结构化JSON，直接返回JSON：${formData.features}`;
 
       setStatus('正在生成视频内容...');
-      const response = await fetch('https://api.minimax.chat/v1/chat/completions', {
+      const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'MiniMax-Text-01',
+          model: 'Pro/MiniMaxAI/MiniMax-M2.5',
           messages: [{ role: 'user', content: prompt }],
           stream: false,
           max_tokens: 3000,

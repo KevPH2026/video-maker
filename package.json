@@ -11,6 +11,7 @@
   "dependencies": {
     "@hyperframes/producer": "^0.4.4",
     "next": "16.2.4",
+    "playwright": "^1.59.1",
     "puppeteer-core": "^24.41.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"

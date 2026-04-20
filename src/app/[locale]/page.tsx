@@ -319,10 +319,12 @@ Colors: dark background with warm amber/gold accent.`;
                 ].map((ex, i) => (
                   <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: `1px solid ${ex.color}33`, background: '#0a0a14' }}>
                     <div style={{ height: 120, overflow: 'hidden', background: '#000', position: 'relative' }}>
-                      <iframe src={`/demos/${ex.slug}.html`} key={ex.slug}
-                        style={{ width: '192%', height: '200%', border: 'none', transform: 'scale(0.5)', transformOrigin: 'top left', pointerEvents: 'none' }}
-                        sandbox="allow-scripts"
-                        title={ex.name} />
+                      <img src={`/demos/thumbs/${ex.slug}.jpg`} alt={ex.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 28 }}>
+                        ▶
+                      </div>
                     </div>
                     <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{ex.name}</span>

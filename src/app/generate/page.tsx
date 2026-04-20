@@ -21,6 +21,8 @@ export default function Generate() {
   const [error, setError] = useState('');
   const [isRecording, setIsRecording] = useState(false);
   const [recordingProgress, setRecordingProgress] = useState(0);
+  const [isRenderingMp4, setIsRenderingMp4] = useState(false);
+  const [mp4Url, setMp4Url] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [activeExample, setActiveExample] = useState(0);
   const [previewUrl, setPreviewUrl] = useState('');
@@ -28,6 +30,45 @@ export default function Generate() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const RENDER_API = 'https://video-maker-production-4372.up.railway.app';
+
+  const renderToServerMp4 = useCallback(async () => {
+    if (!htmlContent || isRenderingMp4) return;
+    setIsRenderingMp4(true);
+    setError('');
+    setStatus('🎬 正在服务器渲染 MP4，预计 20-30 秒...');
+    try {
+      const response = await fetch(`${RENDER_API}/render`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          html: htmlContent,
+          duration: 22,
+          width: 1920,
+          height: 1080,
+        }),
+      });
+      const data = await response.json();
+      if (data.success) {
+        const mp4FullUrl = `${RENDER_API}${data.videoUrl}`;
+        setMp4Url(mp4FullUrl);
+        setStatus('✅ MP4 渲染完成，点击下方按钮下载');
+        // Auto-trigger download
+        const a = document.createElement('a');
+        a.href = mp4FullUrl;
+        a.download = `videoai-${Date.now()}.mp4`;
+        a.click();
+      } else {
+        throw new Error(data.error || '渲染失败');
+      }
+    } catch (err: any) {
+      setError(`服务器渲染失败: ${err.message}`);
+      setStatus('');
+    } finally {
+      setIsRenderingMp4(false);
+    }
+  }, [htmlContent, isRenderingMp4]);
   const previewWindowRef = useRef<Window | null>(null);
 
   // Build structured JSON prompt - AI returns JSON, we render to template
@@ -463,8 +504,33 @@ window.__timelines["comp"]=tl;
               </button>
             )}
 
+            {htmlContent && (
+              <button
+                onClick={renderToServerMp4}
+                disabled={isRenderingMp4}
+                className="w-full py-3.5 bg-amber-500 hover:bg-amber-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-black font-bold text-sm rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                {isRenderingMp4 ? (
+                  <>
+                    <div className="w-4 h-4 rounded-full border-2 border-black/30 border-t-black animate-spin" />
+                    服务器渲染中...
+                  </>
+                ) : mp4Url ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    MP4 已就绪，再次下载
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    服务器渲染 MP4
+                  </>
+                )}
+              </button>
+            )}
+
             <p className="text-xs text-slate-600 text-center">
-              {htmlContent ? '视频已生成，可预览或录制下载' : '填写信息后点击生成，AI 自动编排动画'}
+              {htmlContent ? '视频已生成，可预览或录制下载，服务器渲染直接出 MP4 文件' : '填写信息后点击生成，AI 自动编排动画'}
             </p>
           </div>
         </div>

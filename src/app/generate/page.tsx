@@ -176,18 +176,18 @@ window.__timelines["comp"]=tl;
     setShowPreview(false);
 
     try {
-      const key = 'sk-bzuzrniblkmsprdphgfhigqqokinomxcsfnwpexejboplbld';
+      const key = 'sk-cp-iPwiazmWpnPdhqDDL7MERYcIObW3prHB-wcTTRiTrcSbSzzQ2Iva4YZ5Tv0I3LsOnKAAIGAE2H9CbgMxPRJiOJ-PULd1bZOh8_QSWnmR-HWvxAwS6BFxxpc';
       const prompt = mode === 'form' ? buildStructuredPrompt(formData) : `你是一个视频营销策划师。根据产品描述生成结构化JSON，直接返回JSON：${formData.features}`;
 
       setStatus('正在生成视频内容...');
-      const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+      const response = await fetch('https://api.minimax.chat/v1/chat/completions', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'deepseek-ai/DeepSeek-V3',
+          model: 'MiniMax-Text-01',
           messages: [{ role: 'user', content: prompt }],
           stream: false,
-          max_tokens: 2000,
+          max_tokens: 3000,
         }),
       });
 
@@ -215,20 +215,12 @@ window.__timelines["comp"]=tl;
       setStatus('正在渲染视频 Animation...');
       const html = renderJsonToHtml(json);
       setHtmlContent(html);
-      setShowPreview(true);
-
       const previewHtml = buildPreviewHtml(html);
-      if (previewWindowRef.current) previewWindowRef.current.close();
-      const win = window.open('', '_blank', 'width=1920,height=1080') as any;
-      if (win) {
-        win.document.write(previewHtml);
-        win.document.close();
-        previewWindowRef.current = win;
-      }
-
+      // Set inline preview immediately (no popup)
+      setShowPreview(true);
       setTimeout(() => {
         if (iframeRef.current) iframeRef.current.srcdoc = previewHtml;
-      }, 300);
+      }, 50);
 
       setStatus('✅ 视频已生成！点击「录制下载」开始录制');
     } catch (err: any) {
@@ -241,13 +233,6 @@ window.__timelines["comp"]=tl;
 
   const startRecording = useCallback(() => {
     if (!htmlContent || isRecording) return;
-
-    const win = previewWindowRef.current;
-    if (!win) {
-      setError('请先点击「预览视频」打开预览窗口');
-      return;
-    }
-
     setIsRecording(true);
     setRecordingProgress(0);
     chunksRef.current = [];
@@ -513,7 +498,7 @@ window.__timelines["comp"]=tl;
           {htmlContent && (
             <div className="px-4 py-3 border-t border-white/5 bg-slate-900/30 flex items-center justify-between gap-3 shrink-0">
               <div className="text-xs text-slate-500">
-                22秒 · GSAP动画 · 浏览器录制下载
+                22秒 · GSAP动画 · 点击录制后选择要录的窗口
               </div>
               <div className="flex gap-2">
                 <button
@@ -529,19 +514,6 @@ window.__timelines["comp"]=tl;
                   className="px-3 py-1.5 border border-slate-700 rounded-lg text-xs text-slate-400 hover:text-white hover:border-slate-600 transition-all"
                 >
                   导出HTML
-                </button>
-                <button
-                  onClick={() => {
-                    // Open preview in new window
-                    const win = window.open('', '_blank', 'width=1920,height=1080');
-                    if (win) {
-                      win.document.write(buildPreviewHtml(htmlContent));
-                      win.document.close();
-                    }
-                  }}
-                  className="px-3 py-1.5 border border-slate-700 rounded-lg text-xs text-slate-400 hover:text-white hover:border-slate-600 transition-all"
-                >
-                  新窗口打开
                 </button>
               </div>
             </div>

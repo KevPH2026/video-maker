@@ -72,26 +72,38 @@ Generate a professional video composition for: ${inputValue}
 Make the content specific to this product/service. Include real text, numbers, and details.
 Colors: dark background with warm amber/gold accent.`;
 
-      const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'deepseek-ai/DeepSeek-V3',
-          messages: [{ role: 'user', content: prompt }],
-          stream: false,
-          max_tokens: 2500,
-        }),
-      });
-
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 30000);
+      let response;
+      try {
+        response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'deepseek-ai/DeepSeek-V3',
+            messages: [{ role: 'user', content: prompt }],
+            stream: false,
+            max_tokens: 4000,
+          }),
+          signal: controller.signal as any,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
       if (!response.ok) throw new Error(isEN ? 'Generation failed' : '生成失败');
       const data = await response.json();
-      let html = (data.choices?.[0]?.message?.content || '')
-        .replace(/^```(?:html|htm)?\s*/i, '').replace(/\s*```$/i, '').trim();
+      let raw = data.choices?.[0]?.message?.content || '';
+      // Unescape HTML entities if present
+      raw = raw.replace(/\\u([0-9a-f]{4})/gi, (_m: any, hex: string) => String.fromCharCode(parseInt(hex, 16)));
+      // Strip markdown code fences (handle various formats)
+      let html = raw.replace(/^```[a-z]*\s*/i, '').replace(/\s*```\s*$/i, '').trim();
+      // Validate HTML presence
       if (!html.includes('<html') && !html.includes('<!DOCTYPE')) {
-        throw new Error(isEN ? 'Generated content was invalid, please retry' : '生成内容无效，请重试');
+        console.error('Invalid HTML returned, raw first 500:', raw.slice(0, 500));
+        throw new Error(isEN ? 'Failed to generate video content, please retry' : '视频内容生成失败，请重试');
       }
       setGenerationStep(isEN ? 'Rendering preview...' : '正在渲染预览...');
       setResultHtml(html);

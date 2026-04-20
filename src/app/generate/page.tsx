@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { APP_VERSION } from '@/lib/version';
+import { buildPreviewHtml } from '@/lib/render';
 
 const EXAMPLE_PRODUCTS = [
   { name: '智能手表 Pro X', category: '消费电子', price: '$399', market: '北美/欧洲', description: '心率/GPS/防水/7天续航，适合运动人群' },
@@ -28,24 +29,6 @@ export default function Generate() {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const previewWindowRef = useRef<Window | null>(null);
-
-  const buildPreviewHtml = (html: string) => `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>*{margin:0;padding:0;box-sizing:border-box}html,body{width:100%;height:100%;overflow:hidden;background:#0a0a14}</style>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
-</head>
-<body>${html}
-<script>
-window.__timelines = window.__timelines || {};
-const tl = gsap.timeline({ paused: false });
-window.__timelines["comp"] = tl;
-// Signal ready
-window.parent.postMessage('ready', '*');
-</script>
-</body>
-</html>`;
 
   // Build structured JSON prompt - AI returns JSON, we render to template
   const buildStructuredPrompt = (data: typeof formData) => {

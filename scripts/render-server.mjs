@@ -1,116 +1,159 @@
 #!/usr/bin/env node
 /**
  * web2.video Render Server
- * Uses @hyperframes/producer as the rendering engine.
+ * Custom Playwright + ffmpeg rendering pipeline.
  * 
  * Run: node scripts/render-server.mjs
  * Default port: 3456
+ * 
+ * POST /render { html, outputFilename?, width?, height?, fps?, duration? }
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createServer } from 'http';
-import os from 'os';
+import { execSync } from 'child_process';
+import { chromium } from 'playwright';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, '..');
 const PUBLIC_DIR = join(PROJECT_ROOT, 'public');
 const RENDERS_DIR = join(PUBLIC_DIR, 'renders');
-const GSAP_LOCAL = join(PUBLIC_DIR, 'js', 'gsap.min.js');
+const TEMP_DIR = join(RENDERS_DIR, 'temp');
 
-// Ensure render directory exists
-if (!existsSync(RENDERS_DIR)) mkdirSync(RENDERS_DIR, { recursive: true });
+mkdirSync(RENDERS_DIR, { recursive: true });
+mkdirSync(TEMP_DIR, { recursive: true });
 
 const PORT = parseInt(process.env.RENDER_PORT || '3456');
-const HF_PORT = PORT + 1; // HyperFrames producer server runs on PORT+1
+const CHROME = process.env.CHROME_PATH; // Unset on Linux = auto-detect Playwright's Chromium
 
-// Load local GSAP content once at startup
+// Load local GSAP once at startup
 let GSAP_CODE = '';
 try {
-  GSAP_CODE = readFileSync(GSAP_LOCAL, 'utf8');
+  GSAP_CODE = readFileSync(join(PUBLIC_DIR, 'js', 'gsap.min.js'), 'utf8');
   console.log(`✅ GSAP loaded locally (${(GSAP_CODE.length / 1024).toFixed(0)}KB)`);
 } catch {
   console.warn('⚠️  Local GSAP not found, will use CDN');
 }
 
-// Import HyperFrames producer
-let hfModule;
-try {
-  hfModule = await import('@hyperframes/producer');
-  console.log('✅ @hyperframes/producer loaded');
-} catch (err) {
-  console.error('❌ Failed to load @hyperframes/producer:', err.message);
-  process.exit(1);
-}
-
-const { startServer: hfStartServer } = hfModule;
-
-// Inject local GSAP into HTML before rendering
+// Inject local GSAP into HTML (replace CDN version with local)
 function prepareHtml(html) {
   if (!GSAP_CODE) return html;
-  // Replace CDN GSAP with local version
-  let prepared = html.replace(
-    /<script[^>]*gsap.*?<\/script>/gi,
-    `<script>${GSAP_CODE}<\/script>`
-  );
-  // If no GSAP found, inject at the start of body
-  if (!prepared.includes(GSAP_CODE.slice(0, 50))) {
-    prepared = prepared.replace(/<body>/i, `<body>\n<script>${GSAP_CODE}<\/script>`);
-  }
+  let prepared = html
+    .replace(/<script[^>]*gsap.*?<\/script>/gi, '')
+    .replace(/<script[^>]*\/js\/gsap.*?<\/script>/gi, '');
+  prepared = prepared.replace(/<body/i, `<body><script>${GSAP_CODE}</script>`);
   return prepared;
 }
 
-// Start HyperFrames producer server
-let hfServer;
-let hfReady = false;
-let renderQueue = [];
-
-async function initHfServer() {
-  try {
-    hfServer = await hfStartServer({ port: HF_PORT });
-    hfReady = true;
-    console.log(`✅ HyperFrames producer server on port ${HF_PORT}`);
-    
-    // Process any queued renders
-    if (renderQueue.length > 0) {
-      console.log(`📋 Processing ${renderQueue.length} queued renders...`);
-      renderQueue.forEach(req => handleRender(req.req, req.res).catch(console.error));
-      renderQueue = [];
-    }
-  } catch (err) {
-    console.error('❌ HyperFrames server error:', err.message);
-    process.exit(1);
-  }
+// Start a local HTTP server for the HTML
+function startHtmlServer(html) {
+  return new Promise((resolve) => {
+    const s = createServer((req, res) => {
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      res.end(html);
+    });
+    s.listen(0, '127.0.0.1', () => {
+      resolve({ server: s, port: s.address().port });
+    });
+  });
 }
 
-// Simple HTTP server to proxy to HyperFrames producer
+// Render video using Playwright + ffmpeg
+async function renderVideo(html, outputPath, opts = {}) {
+  const { width = 1920, height = 1080, fps = 30, duration = 10 } = opts;
+  const { server: htmlServer, port } = await startHtmlServer(html);
+  
+  const launchOpts = {
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+  };
+  if (CHROME) launchOpts.executablePath = CHROME;
+
+  const browser = await chromium.launch(launchOpts);
+
+  const context = await browser.newContext({
+    viewport: { width, height },
+    recordVideo: { dir: TEMP_DIR, duration: duration + 6, size: { width, height } },
+  });
+
+  if (GSAP_CODE) {
+    await context.addInitScript(GSAP_CODE);
+  }
+
+  const page = await context.newPage();
+  const pageErrors = [];
+  page.on('pageerror', e => pageErrors.push(e.message));
+  page.on('console', m => { if (m.type() === 'error') pageErrors.push(m.text().slice(0, 80)); });
+
+  await page.goto(`http://127.0.0.1:${port}/`, { waitUntil: 'domcontentloaded' });
+  await page.waitForTimeout(2000);
+
+  // Try to play any GSAP timeline
+  const tlStatus = await page.evaluate(() => {
+    try {
+      const tl = window.__timelines && (window.__timelines.video || Object.values(window.__timelines)[0]);
+      if (tl && typeof tl.play === 'function') { tl.play(); return 'playing'; }
+    } catch {}
+    return 'none';
+  });
+  console.log(`  🎬 Timeline: ${tlStatus}`);
+
+  // Wait for animation to complete
+  const waitMs = (duration + 3) * 1000;
+  console.log(`  ⏳ Waiting ${(waitMs / 1000).toFixed(0)}s...`);
+  await page.waitForTimeout(waitMs);
+
+  // Capture video — get path BEFORE closing context
+  const video = await page.video();
+  
+  // Close context and wait for video buffer to flush
+  const closeCtx = context.close();
+  await new Promise(r => setTimeout(r, 5000)); // 5s flush
+  await closeCtx;
+  
+  let webmPath;
+  try { webmPath = await video.path(); } catch { webmPath = null; }
+
+  await browser.close();
+  htmlServer.close();
+
+  if (!webmPath || !existsSync(webmPath) || readFileSync(webmPath).length < 1000) {
+    const sz = webmPath && existsSync(webmPath) ? readFileSync(webmPath).length : 0;
+    throw new Error(`Video capture failed (webm=${webmPath}, size=${sz})`);
+  }
+
+  // Convert WebM → MP4 with ffmpeg
+  console.log(`  🎞️  Converting → MP4...`);
+  try {
+    execSync(`ffmpeg -y -i "${webmPath}" -c:v libx264 -pix_fmt yuv420p -crf 23 "${outputPath}" 2>/dev/null`);
+  } catch (err) {
+    throw new Error(`ffmpeg failed: ${err.message}`);
+  }
+
+  try { unlinkSync(webmPath); } catch {}
+  const mp4Size = readFileSync(outputPath).length;
+  console.log(`  ✅ Done: ${(mp4Size / 1024 / 1024).toFixed(2)}MB MP4`);
+  return { fileSize: mp4Size, errors: pageErrors };
+}
+
+// HTTP Server
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS, GET');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  if (req.method === 'OPTIONS') {
-    res.writeHead(200);
-    res.end();
-    return;
-  }
+  if (req.method === 'OPTIONS') { res.writeHead(200); res.end(); return; }
 
-  // Health check
+  // Health
   if (url.pathname === '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ 
-      status: hfReady ? 'ok' : 'starting', 
-      uptime: process.uptime(),
-      queue: renderQueue.length
-    }));
+    res.end(JSON.stringify({ status: 'ok', uptime: process.uptime() }));
     return;
   }
 
-  // Serve rendered videos (from producer's output directory)
+  // Serve rendered videos
   if (url.pathname.startsWith('/renders/')) {
     const filename = url.pathname.replace('/renders/', '');
     const filePath = join(RENDERS_DIR, filename);
@@ -125,71 +168,33 @@ const server = createServer(async (req, res) => {
     }
   }
 
-  // Serve static assets (GSAP, etc)
-  if (url.pathname.startsWith('/js/')) {
-    const filePath = join(PUBLIC_DIR, url.pathname);
-    if (existsSync(filePath)) {
-      res.writeHead(200, { 'Content-Type': 'application/javascript' });
-      createReadStream(filePath).pipe(res);
-      return;
-    }
-  }
-
   // Render endpoint
   if (url.pathname === '/render' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk; });
     req.on('end', async () => {
+      const startTime = Date.now();
       try {
-        const { html, outputFilename } = JSON.parse(body);
-        if (!html) {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ success: false, error: 'html is required' }));
-          return;
-        }
+        const { html, outputFilename, width = 1920, height = 1080, fps = 30, duration = 10 } = JSON.parse(body);
+        if (!html) throw new Error('html is required');
 
         const filename = outputFilename || `video-${Date.now()}.mp4`;
         const outputPath = join(RENDERS_DIR, filename);
-        
-        // Prepare HTML with local GSAP
         const preparedHtml = prepareHtml(html);
 
-        console.log(`[Render] Starting render: ${filename} (${(html.length / 1024).toFixed(0)}KB HTML)`);
+        console.log(`\n🎬 Render: ${filename} | ${width}x${height} | ${duration}s | ${(html.length / 1024).toFixed(0)}KB HTML`);
+        const { fileSize, errors } = await renderVideo(preparedHtml, outputPath, { width, height, fps, duration });
+        if (errors.length) console.log(`  ⚠️  ${errors.slice(0, 2).join(' | ')}`);
 
-        // Proxy to HyperFrames producer server
-        const hfResp = await fetch(`http://localhost:${HF_PORT}/render`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            html: preparedHtml,
-            outputPath,
-            width: 1920,
-            height: 1080,
-            fps: 30,
-            duration: 22,
-            quality: 'high',
-          }),
-          signal: AbortSignal.timeout(180000), // 3 min timeout
-        });
-
-        const result = await hfResp.json();
-        
-        if (result.success) {
-          console.log(`[Render] ✅ Done: /renders/${filename} (${(result.fileSize / 1024 / 1024).toFixed(1)}MB)`);
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({
-            success: true,
-            videoUrl: `/renders/${filename}`,
-            fileSize: result.fileSize,
-            durationMs: result.durationMs,
-          }));
-        } else {
-          console.error(`[Render] ❌ Error: ${result.error}`);
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ success: false, error: result.error }));
-        }
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          videoUrl: `/renders/${filename}`,
+          fileSize,
+          durationMs: Date.now() - startTime,
+        }));
       } catch (err) {
-        console.error('[Render] Exception:', err.message);
+        console.error(`❌ ${err.message}`);
         res.writeHead(500, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: false, error: err.message }));
       }
@@ -206,5 +211,4 @@ server.listen(PORT, '0.0.0.0', () => {
   console.log(`📁 Renders: ${RENDERS_DIR}`);
   console.log(`🌐 http://localhost:${PORT}`);
   console.log(`❤️  Health: http://localhost:${PORT}/health\n`);
-  initHfServer();
 });

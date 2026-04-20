@@ -2,7 +2,7 @@ FROM node:20-slim
 
 WORKDIR /app
 
-# Install dependencies for Puppeteer
+# Install system dependencies for Playwright + ffmpeg
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -23,11 +23,22 @@ RUN apt-get update && apt-get install -y \
     libxdamage1 \
     libxrandr2 \
     xdg-utils \
-    --no-install-recommends
+    ffmpeg \
+    curl \
+    --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
+# Copy package files
 COPY package*.json ./
+
+# Install Node dependencies (including playwright)
 RUN npm install
 
+# Install Playwright Chromium browser (Linux version)
+RUN npx playwright install chromium --with-deps
+
+# Copy source
 COPY . .
 
 EXPOSE 3456

@@ -1,0 +1,10 @@
+[railway]
+  builder = "dockerfile"
+  dockerfilePath = "Dockerfile"
+
+[railway.environment]
+  NODE_ENV = "production"
+
+[deploy]
+  numReplicas = 1
+  sleepApplication = false

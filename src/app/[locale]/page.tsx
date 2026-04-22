@@ -32,6 +32,7 @@ export default function LocalePage({ params }: { params: Promise<{ locale: strin
   const t: Lang = locale === 'en' ? EN : CN;
   const [inputValue, setInputValue] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [demoVideo, setDemoVideo] = useState<any>(null);
   const [generationStep, setGenerationStep] = useState('');
   const [resultHtml, setResultHtml] = useState('');
   const [showPreview, setShowPreview] = useState(false);
@@ -124,6 +125,10 @@ Colors: dark background with warm amber/gold accent.`;
       setGenerationStep('');
     }
   }, [inputValue, isGenerating, isEN]);
+
+  function openDemoVideo(ex: any) {
+    setDemoVideo(ex);
+  }
 
   return (
     <>
@@ -307,31 +312,92 @@ Colors: dark background with warm amber/gold accent.`;
             </div>
           )}
 
-          {/* Example outputs - click to pre-fill */}
+          {/* Video demos - 6 real AI-generated product videos */}
           {!showPreview && !isGenerating && (
             <div style={{ marginTop: 56 }}>
-              <p style={{ textAlign: 'center', color: '#666', fontSize: 13, marginBottom: 24 }}>{isEN ? 'Click any example to see the AI-generated video →' : '点击示例查看 AI 生成的视频效果 →'}</p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+              <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: '#bf00ff', textTransform: 'uppercase', marginBottom: 8 }}>AIGC VIDEO GALLERY</div>
+                <h3 style={{ fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 8 }}>效果视频展示</h3>
+                <p style={{ color: '#666', fontSize: 14 }}>这些视频均由 AI 自动生成。点击任意视频，直接制作你的产品。</p>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                 {[
-                  { name: '智能手表 Pro X', slug: 'smart-watch', color: '#ff6b35' },
-                  { name: '便携储能电源', slug: 'power-station', color: '#00d4aa' },
-                  { name: '空气净化器 Mini', slug: 'air-purifier', color: '#bf5af2' },
+                  {
+                    name: '智能健康手环 Pro Max',
+                    desc: '24h心率监测 · GPS运动轨迹 · 睡眠分析 · 50米防水',
+                    color: '#8b5cf6',
+                    badge: '消费电子',
+                    video: 'https://video-maker-production-4372.up.railway.app/renders/video-1776779970148.mp4',
+                    href: '/generate?name=智能健康手环%20Pro%20Max&tagline=24h守护·运动轨迹·睡眠分析',
+                  },
+                  {
+                    name: '太阳能家用储能系统',
+                    desc: '5KW光伏板 · 10KWh电池 · 年省电费8000元',
+                    color: '#f59e0b',
+                    badge: '新能源',
+                    video: 'https://video-maker-production-4372.up.railway.app/renders/video-1776780045786.mp4',
+                    href: '/generate?name=太阳能家用储能系统&tagline=清洁能源·年省8000元电费',
+                  },
+                  {
+                    name: 'TrailRunner GTX',
+                    desc: '专业越野跑鞋 · Gore-Tex防水 · Vibram大底 · $189',
+                    color: '#22c55e',
+                    badge: '运动户外',
+                    video: 'https://video-maker-production-4372.up.railway.app/renders/video-1776780128432.mp4',
+                    href: '/generate?name=TrailRunner%20GTX&tagline=专业越野跑鞋·Gore-Tex防水·Vibram大底',
+                  },
+                  {
+                    name: 'GlowSkin 精华液',
+                    desc: '焕亮肌肤 · 精华液 · 适合亚洲女性 · ¥299',
+                    color: '#ec4899',
+                    badge: '美妆护肤',
+                    video: 'https://video-maker-production-4372.up.railway.app/renders/video-1776780272304.mp4',
+                    href: '/generate?name=GlowSkin%20精华液&tagline=焕亮肌肤·精华液·适合亚洲女性',
+                  },
+                  {
+                    name: 'AirPods Pro X',
+                    desc: '主动降噪 · 空间音频 · 36小时续航',
+                    color: '#3b82f6',
+                    badge: '数码配件',
+                    video: 'https://video-maker-production-4372.up.railway.app/renders/video-1776780322943.mp4',
+                    href: '/generate?name=AirPods%20Pro%20X&tagline=主动降噪·空间音频·36小时续航',
+                  },
+                  {
+                    name: 'PureAir Pro 空气净化器',
+                    desc: 'HEPA H13滤网 · 99.97%过滤 · 静音32dB · 适用60㎡',
+                    color: '#a855f7',
+                    badge: '家居家电',
+                    video: 'https://video-maker-production-4372.up.railway.app/renders/video-1776780456305.mp4',
+                    href: '/generate?name=PureAir%20Pro%20空气净化器&tagline=HEPA滤网·99.97%过滤·静音设计',
+                  },
                 ].map((ex, i) => (
-                  <div key={i} style={{ borderRadius: 16, overflow: 'hidden', border: `1px solid ${ex.color}33`, background: '#0a0a14' }}>
-                    <div style={{ height: 120, overflow: 'hidden', background: '#000', position: 'relative' }}>
-                      <img src={`/demos/thumbs/${ex.slug}.jpg`} alt={ex.name}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                        onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', fontSize: 28 }}>
-                        ▶
+                  <div key={i} onClick={() => openDemoVideo(ex)}
+                    style={{ display: 'block', borderRadius: 16, overflow: 'hidden', border: `1px solid ${ex.color}33`, background: '#0a0a14', textDecoration: 'none', transition: 'all 0.2s' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-6px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = `0 16px 50px ${ex.color}44`; }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}>
+                    <div style={{ position: 'relative', background: '#000' }}>
+                      <video
+                        src={ex.video}
+                        muted
+                        loop
+                        playsInline
+                        style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
+                        onMouseEnter={e => (e.currentTarget as HTMLVideoElement).play()}
+                        onMouseLeave={e => { const v = e.currentTarget as HTMLVideoElement; v.pause(); v.currentTime = 0; }}
+                      />
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.2)', pointerEvents: 'none' }}>
+                        <div style={{ width: 48, height: 48, borderRadius: '50%', background: `${ex.color}cc`, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)', border: '2px solid rgba(255,255,255,0.2)' }}>
+                          <span style={{ color: '#fff', fontSize: 18, marginLeft: 3 }}>▶</span>
+                        </div>
                       </div>
+                      <div style={{ position: 'absolute', top: 10, left: 10, background: `${ex.color}cc`, padding: '3px 10px', borderRadius: 8, fontSize: 11, fontWeight: 700, color: '#fff' }}>{ex.badge}</div>
                     </div>
-                    <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{ex.name}</span>
-                      <a href={`/generate?name=${encodeURIComponent(ex.name)}&tagline=`}
-                        style={{ fontSize: 12, color: ex.color, textDecoration: 'none', fontWeight: 600 }}>
-                        制作 →
-                      </a>
+                    <div style={{ padding: '14px 16px' }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{ex.name}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5 }}>{ex.desc}</div>
+                      <div style={{ marginTop: 10 }}>
+                        <span style={{ fontSize: 12, color: ex.color, fontWeight: 600 }}>制作我的视频 →</span>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -340,6 +406,48 @@ Colors: dark background with warm amber/gold accent.`;
           )}
         </div>
       </section>
+
+
+          {/* Demo video modal */}
+          {demoVideo ? (
+            <div style={{
+              position: 'fixed', inset: 0, zIndex: 1000,
+              background: 'rgba(0,0,0,0.92)', display: 'flex',
+              alignItems: 'center', justifyContent: 'center', padding: '40px'
+            }} onClick={() => setDemoVideo(null)}>
+              <div style={{ position: 'relative', maxWidth: 860, width: '100%' }} onClick={e => e.stopPropagation()}>
+                <button
+                  onClick={() => setDemoVideo(null)}
+                  style={{
+                    position: 'absolute', top: -44, right: 0,
+                    background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
+                    color: '#fff', fontSize: 20, cursor: 'pointer', padding: '4px 14px', borderRadius: 8, backdropFilter: 'blur(8px)'
+                  }}
+                >✕</button>
+                <div style={{ borderRadius: 16, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.1)' }}>
+                  <video
+                    src={demoVideo.video}
+                    controls
+                    autoPlay
+                    style={{ width: '100%', maxHeight: '65vh', display: 'block', background: '#000' }}
+                  />
+                  <div style={{ padding: '20px 24px', background: '#0a0a14' }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, color: demoVideo.color, textTransform: 'uppercase' as const, marginBottom: 6 }}>{demoVideo.badge}</div>
+                    <div style={{ fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 6 }}>{demoVideo.name}</div>
+                    <div style={{ fontSize: 13, color: '#64748b', marginBottom: 16, lineHeight: 1.6 }}>{demoVideo.desc}</div>
+                    <a href={demoVideo.href}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        padding: '10px 20px', borderRadius: 10,
+                        background: `linear-gradient(135deg, ${demoVideo.color}, ${demoVideo.color}99)`,
+                        color: '#fff', fontWeight: 700, fontSize: 13, textDecoration: 'none'
+                      }}
+                    >制作我的视频 →</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : null}
 
       {/* PRICING */}
       <section id="pricing" style={{ padding: '120px 40px', background: '#000' }}>

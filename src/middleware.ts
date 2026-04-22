@@ -13,6 +13,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Skip auth pages and generate page (they have their own layouts)
+  if (
+    pathname === '/login' ||
+    pathname === '/register' ||
+    pathname === '/generate' ||
+    pathname.startsWith('/generate')
+  ) {
+    return NextResponse.next();
+  }
+
   // If already has locale, continue
   if (pathname.startsWith('/zh') || pathname.startsWith('/en')) {
     return NextResponse.next();

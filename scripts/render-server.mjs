@@ -202,6 +202,104 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // Scrape endpoint
+  if (url.pathname === '/scrape' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', async () => {
+      try {
+        const { url: targetUrl } = JSON.parse(body);
+        if (!targetUrl) throw new Error('url is required');
+
+        const parsed = new URL(targetUrl);
+        if (!['http:', 'https:'].includes(parsed.protocol)) {
+          throw new Error('Invalid protocol');
+        }
+
+        console.log(`  🌐 Scrape: ${targetUrl}`);
+        const browser = await chromium.launch({ headless: true });
+        const page = await browser.newPage();
+        await page.setExtraHTTPHeaders({ 'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8' });
+
+        const response = await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+        if (!response || response.status() >= 400) {
+          await browser.close();
+          throw new Error(`HTTP ${response?.status() || 'no response'}`);
+        }
+
+        await page.waitForTimeout(2000);
+
+        const data = await page.evaluate(() => {
+          const result = { title: '', description: '', price: '', brand: '', features: [], images: [], siteName: '' };
+          result.title = (
+            document.querySelector('h1')?.textContent?.trim() ||
+            document.querySelector('h2')?.textContent?.trim() ||
+            document.querySelector('[class*="title" i]')?.textContent?.trim() ||
+            document.title
+          )?.substring(0, 100) || '';
+
+          result.description = (
+            document.querySelector('meta[name="description"]')?.getAttribute('content') ||
+            document.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
+            document.querySelector('[class*="description" i]')?.textContent?.trim() ||
+            document.querySelector('[class*="desc" i]')?.textContent?.trim()
+          )?.substring(0, 300) || '';
+
+          const priceEl = document.querySelector(
+            '[class*="price" i], [class*="cost" i], [data-price], [itemprop="price"]'
+          );
+          if (priceEl) {
+            const txt = priceEl.textContent || '';
+            const m = txt.match(/[\$\xa5\u20ac\xa3]?\s*[\d,]+\.?\d*/);
+            if (m) result.price = m[0].trim();
+          }
+
+          const brandEl = document.querySelector(
+            '[class*="brand" i]:not(img), [itemprop="brand"], meta[property="og:site_name"]'
+          );
+          if (brandEl) {
+            result.brand = (brandEl.getAttribute('content') || brandEl.textContent)?.trim().substring(0, 50) || '';
+          }
+
+          const images = [];
+          document.querySelectorAll('img').forEach(img => {
+            const src = img.src || img.getAttribute('data-src') || '';
+            if (src && src.startsWith('http') && !src.includes('data:') && images.length < 5) {
+              images.push(src);
+            }
+          });
+          const ogImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+          if (ogImage && !images.includes(ogImage)) images.unshift(ogImage);
+          result.images = images;
+
+          const features = [];
+          document.querySelectorAll('li, [class*="feature" i], [class*="spec" i], [class*="benefit" i]').forEach(el => {
+            const text = el.textContent?.trim();
+            if (text && text.length > 5 && text.length < 100 && features.length < 8) {
+              features.push(text);
+            }
+          });
+          result.features = features;
+          result.siteName = document.querySelector('meta[property="og:site_name"]')?.getAttribute('content') || '';
+
+          return result;
+        });
+
+        await browser.close();
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true, url: targetUrl, ...data }));
+        console.log(`  ✅ Scrape done: ${data.title?.substring(0, 40)}`);
+
+      } catch (err) {
+        console.error(`❌ Scrape error: ${err.message}`);
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: err.message }));
+      }
+    });
+    return;
+  }
+
   res.writeHead(404);
   res.end('Not found');
 });
